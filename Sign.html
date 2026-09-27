@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign In – Swarsanskar Music Academy</title>
+  <link rel="stylesheet" href="theme.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 24px;
+      background:
+        radial-gradient(ellipse 80% 60% at 50% 0%, rgba(201,144,42,0.08) 0%, transparent 60%),
+        var(--midnight);
+    }
+    .auth-wrap { width: 100%; max-width: 440px; }
+    .auth-brand { text-align: center; margin-bottom: 28px; }
+    .auth-logo {
+      width: 80px; height: 80px; border-radius: 50%; object-fit: cover;
+      border: 2px solid var(--gold); box-shadow: 0 0 20px rgba(201,144,42,0.3);
+      display: block; margin: 0 auto 14px;
+    }
+    .auth-brand h1 {
+      font-family: var(--font-display); font-size: 26px; font-weight: 700;
+      color: var(--sand); margin-bottom: 2px;
+    }
+    .auth-brand p {
+      font-size: 11px; letter-spacing: 3px; color: var(--gold);
+      text-transform: uppercase; margin-bottom: 4px;
+    }
+    .auth-brand em {
+      font-family: var(--font-display); font-size: 13px; color: var(--muted); font-style: italic;
+    }
+    .auth-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow);
+    }
+    .tabs {
+      display: flex; background: var(--surface2); border-bottom: 1px solid var(--border);
+    }
+    .tab {
+      flex: 1; padding: 14px; background: none; border: none;
+      font-family: var(--font-body); font-size: 12px; letter-spacing: 1.5px;
+      text-transform: uppercase; color: var(--muted); cursor: pointer;
+      transition: all 0.2s; border-bottom: 2px solid transparent;
+    }
+    .tab.active {
+      color: var(--gold); border-bottom-color: var(--gold);
+      background: rgba(201,144,42,0.04);
+    }
+    .form-body { padding: 28px; }
+    .form-panel { display: none; }
+    .form-panel.active { display: block; }
+    .hint {
+      font-size: 12px; color: var(--muted); background: rgba(201,144,42,0.06);
+      border: 1px solid var(--border); border-left: 3px solid var(--gold);
+      border-radius: var(--radius-s); padding: 10px 12px; margin-bottom: 16px; line-height: 1.5;
+    }
+    .hint strong { color: var(--gold-lt); }
+    .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .checkbox-row {
+      display: flex; align-items: flex-start; gap: 8px;
+      font-size: 12px; color: var(--muted); margin-bottom: 16px;
+    }
+    .checkbox-row input { margin-top: 2px; flex-shrink: 0; accent-color: var(--gold); }
+    .field { margin-bottom: 14px; }
+    .field label {
+      display: block; font-size: 11px; letter-spacing: 1.2px;
+      text-transform: uppercase; color: var(--muted); margin-bottom: 6px;
+    }
+    .field input, .field select {
+      width: 100%; background: var(--midnight); border: 1px solid var(--border);
+      border-radius: var(--radius-s); padding: 11px 14px; font-family: var(--font-body);
+      font-size: 14px; color: var(--text); outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .field input:focus, .field select:focus {
+      border-color: var(--gold); box-shadow: 0 0 0 3px rgba(201,144,42,0.12);
+    }
+    .field input.error { border-color: #f87171; }
+    .btn-primary {
+      width: 100%; justify-content: center; display: flex; align-items: center; gap: 8px;
+      padding: 12px 24px; border-radius: var(--radius-s); border: none;
+      font-family: var(--font-body); font-size: 12px; font-weight: 600;
+      letter-spacing: 1px; text-transform: uppercase; cursor: pointer;
+      background: linear-gradient(135deg, var(--gold-dim), var(--gold));
+      color: var(--midnight); transition: opacity 0.2s, transform 0.1s;
+    }
+    .btn-primary:hover { opacity: 0.88; }
+    .btn-primary:active { transform: scale(0.98); }
+    .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+    .card-footer {
+      padding: 14px; text-align: center; font-size: 12px; color: var(--muted);
+      background: var(--surface2); border-top: 1px solid var(--border);
+    }
+    .card-footer a { color: var(--gold); cursor: pointer; text-decoration: none; font-weight: 600; }
+    #id-reveal {
+      display: none; padding: 32px 28px; text-align: center; animation: fadeUp 0.4s ease;
+    }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .checkmark {
+      width: 54px; height: 54px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--gold-dim), var(--gold));
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 16px; font-size: 24px; color: var(--midnight); font-weight: 900;
+    }
+    #id-reveal h3 {
+      font-family: var(--font-display); font-size: 22px; color: var(--sand); margin-bottom: 6px;
+    }
+    #id-reveal > p { font-size: 13px; color: var(--muted); margin-bottom: 24px; }
+    .swar-id-box {
+      background: var(--midnight); border: 2px dashed var(--border-s);
+      border-radius: var(--radius); padding: 20px; margin-bottom: 20px;
+    }
+    .swar-id-label {
+      font-size: 10px; letter-spacing: 2px; color: var(--muted);
+      text-transform: uppercase; margin-bottom: 8px;
+    }
+    .swar-id-value {
+      font-family: var(--font-display); font-size: 28px; font-weight: 700;
+      color: var(--gold); letter-spacing: 2px; word-break: break-all;
+    }
+    .copy-btn {
+      margin-top: 10px; background: none; border: 1px solid var(--border);
+      border-radius: var(--radius-s); padding: 6px 14px; font-size: 12px;
+      color: var(--muted); cursor: pointer; font-family: var(--font-body); transition: all 0.2s;
+    }
+    .copy-btn:hover { border-color: var(--gold); color: var(--gold); }
+    .copy-btn.copied { color: #4ade80; border-color: #4ade80; }
+    .warning-box {
+      background: rgba(201,144,42,0.06); border: 1px solid var(--border);
+      border-radius: var(--radius-s); padding: 12px 14px; font-size: 12px;
+      color: var(--muted); text-align: left; margin-bottom: 20px; line-height: 1.6;
+    }
+    .warning-box strong {
+      display: block; color: var(--gold); font-size: 11px; letter-spacing: 1px; margin-bottom: 4px;
+    }
+    .spinner {
+      display: inline-block; width: 14px; height: 14px;
+      border: 2px solid rgba(255,255,255,0.3); border-top-color: var(--midnight);
+      border-radius: 50%; animation: spin 0.7s linear infinite; vertical-align: middle;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .toast {
+      position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%) translateY(60px);
+      background: var(--surface2); border: 1px solid var(--border); color: var(--text);
+      padding: 12px 24px; border-radius: 50px; font-size: 13px; opacity: 0;
+      transition: all 0.3s ease; z-index: 9999; white-space: nowrap;
+      box-shadow: var(--shadow); pointer-events: none;
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    .toast.success { border-color: #4ade80; color: #4ade80; }
+    .toast.error { border-color: #f87171; color: #f87171; }
+  </style>
+</head>
+<body>
+  <div class="auth-wrap">
+    <div class="auth-brand">
+      <img src="logo.jpeg" alt="Logo" class="auth-logo">
+      <h1>Swarsanskar</h1>
+      <p>Music Academy</p>
+      <em>स्वरांपासून संस्कारांपर्यंत</em>
+    </div>
+    <div class="auth-card">
+      <div class="tabs" id="tab-bar">
+        <button class="tab active" onclick="switchTab('signin')">Sign In</button>
+        <button class="tab" onclick="switchTab('signup')">Sign Up</button>
+      </div>
+      <div class="form-body" id="form-body">
+        <form class="form-panel active" id="panel-signin">
+          <div class="field">
+            <label>Swar ID</label>
+            <input type="text" id="loginId" placeholder="e.g. SMA-2026-4821" required autocomplete="off">
+          </div>
+          <div class="field">
+            <label>Password</label>
+            <input type="password" id="loginPass" placeholder="Your password" required>
+          </div>
+          <div class="hint">Admin? Use <strong>ADMIN</strong> as your Swar ID.</div>
+          <button type="submit" class="btn-primary" id="signin-btn">Sign In</button>
+        </form>
+        <form class="form-panel" id="panel-signup">
+          <div class="row-2">
+            <div class="field">
+              <label>First Name</label>
+              <input type="text" id="su-firstname" required>
+            </div>
+            <div class="field">
+              <label>Last Name</label>
+              <input type="text" id="su-lastname" required>
+            </div>
+          </div>
+          <div class="field">
+            <label>Email</label>
+            <input type="email" id="su-email" required>
+          </div>
+          <div class="field">
+            <label>Phone</label>
+            <input type="tel" pattern="[0-9]{10}" id="su-phone" placeholder="10-digit number" required>
+          </div>
+          <div class="field">
+            <label>Course</label>
+            <select id="su-course" required>
+              <option value="">Select course</option>
+              <option>Hindustani Classical Vocal — Basics</option>
+              <option>Hindustani Classical Vocal — ABGMV</option>
+              <option>Pakhwaj Solo</option>
+              <option>Bhajan</option>
+              <option>Upashastriya Vocal</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Password</label>
+            <input type="password" id="su-password" minlength="6" required>
+          </div>
+          <div class="checkbox-row">
+            <input type="checkbox" id="su-terms" required>
+            <label for="su-terms">I agree to the Terms and Privacy Policy</label>
+          </div>
+          <button type="submit" class="btn-primary" id="signup-btn">Join the Academy</button>
+        </form>
+      </div>
+      <div id="id-reveal">
+        <div class="checkmark">✓</div>
+        <h3>Registration Successful!</h3>
+        <p id="reveal-name">Welcome to Swarsanskar Academy</p>
+        <div class="swar-id-box">
+          <div class="swar-id-label">Your Swar ID</div>
+          <div class="swar-id-value" id="reveal-id">—</div>
+          <button class="copy-btn" id="copy-btn" onclick="copyId()">Copy ID</button>
+        </div>
+        <div class="warning-box">
+          <strong>⚠ Save This ID</strong>
+          This is your unique login ID. Note it down — you will need it with your password to sign in.
+        </div>
+        <button class="btn-primary" onclick="goToSignin()">Go to Sign In →</button>
+      </div>
+      <div class="card-footer" id="footer-text">
+        New here? <a onclick="switchTab('signup')">Create account →</a>
+      </div>
+    </div>
+  </div>
+  <div class="toast" id="toast"></div>
+  <script>
+    const SUPABASE_URL = "https://znpuvbgasybjziyzccnj.supabase.co";
+    const SUPABASE_KEY = "sb_publishable__3ccgpu-g19-N15oa1azoQ_c_9jFrdH";
+    // CDN already declares global `supabase` — do not redeclare it
+    var sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    function showToast(msg, type) {
+      type = type || "success";
+      var t = document.getElementById("toast");
+      t.textContent = msg;
+      t.className = "toast " + type + " show";
+      setTimeout(function() { t.className = "toast"; }, 4000);
+    }
+
+    function setLoading(btn, loading, label) {
+      btn.disabled = loading;
+      btn.innerHTML = loading ? '<span class="spinner"></span> ' + label : label;
+    }
+
+    function switchTab(tab) {
+      document.querySelectorAll(".tab").forEach(function(t, i) {
+        t.classList.toggle("active", (tab === "signin" && i === 0) || (tab === "signup" && i === 1));
+      });
+      document.getElementById("panel-signin").classList.toggle("active", tab === "signin");
+      document.getElementById("panel-signup").classList.toggle("active", tab === "signup");
+      document.getElementById("form-body").style.display = "block";
+      document.getElementById("id-reveal").style.display = "none";
+      document.getElementById("footer-text").innerHTML =
+        tab === "signin"
+          ? 'New here? <a onclick="switchTab(\'signup\')">Create account →</a>'
+          : 'Already have an account? <a onclick="switchTab(\'signin\')">Sign in →</a>';
+    }
+
+    function showIdReveal(name, swarId) {
+      document.getElementById("form-body").style.display = "none";
+      document.getElementById("tab-bar").style.pointerEvents = "none";
+      document.getElementById("reveal-name").textContent = "Welcome, " + name + "!";
+      document.getElementById("reveal-id").textContent = swarId;
+      document.getElementById("id-reveal").style.display = "block";
+      document.getElementById("footer-text").innerHTML = "";
+    }
+
+    function goToSignin() {
+      document.getElementById("tab-bar").style.pointerEvents = "";
+      document.getElementById("id-reveal").style.display = "none";
+      switchTab("signin");
+    }
+
+    function copyId() {
+      var id = document.getElementById("reveal-id").textContent;
+      navigator.clipboard.writeText(id).then(function() {
+        var btn = document.getElementById("copy-btn");
+        btn.textContent = "Copied!";
+        btn.classList.add("copied");
+        setTimeout(function() { btn.textContent = "Copy ID"; btn.classList.remove("copied"); }, 2000);
+      });
+    }
+
+    async function generateSwarId() {
+      var year = new Date().getFullYear();
+      for (var i = 0; i < 20; i++) {
+        var num = Math.floor(1000 + Math.random() * 9000);
+        var swarId = "SMA-" + year + "-" + num;
+        var res = await sb.from("users").select("swar_id").eq("swar_id", swarId).maybeSingle();
+        if (!res.data) return swarId;
+      }
+      return "SMA-" + year + "-" + Date.now().toString().slice(-4);
+    }
+
+    document.getElementById("panel-signin").addEventListener("submit", async function(e) {
+      e.preventDefault();
+      var btn = document.getElementById("signin-btn");
+      var loginId = document.getElementById("loginId").value.trim();
+      var password = document.getElementById("loginPass").value.trim();
+      setLoading(btn, true, "Verifying…");
+      try {
+        var res = await sb.from("users").select("*").eq("swar_id", loginId).maybeSingle();
+        if (res.error) throw res.error;
+        var user = res.data;
+        if (!user || user.password_hash !== password) {
+          setLoading(btn, false, "Sign In");
+          showToast("✗ Swar ID or password is incorrect.", "error");
+          ["loginId", "loginPass"].forEach(function(id) {
+            document.getElementById(id).classList.add("error");
+            setTimeout(function() { document.getElementById(id).classList.remove("error"); }, 2000);
+          });
+          return;
+        }
+        localStorage.setItem("swarId", user.swar_id);
+        localStorage.setItem("firstName", user.first_name);
+        localStorage.setItem("lastName", user.last_name);
+        localStorage.setItem("email", user.email || "");
+        localStorage.setItem("role", user.role);
+        setLoading(btn, false, "Sign In");
+        showToast("✓ Welcome back, " + user.first_name + "!", "success");
+        setTimeout(function() {
+          window.location.href = user.role === "admin" ? "panel.html" : "student.html";
+        }, 900);
+      } catch (err) {
+        console.error(err);
+        setLoading(btn, false, "Sign In");
+        showToast("✗ Could not connect. Check internet / Supabase.", "error");
+      }
+    });
+
+    document.getElementById("panel-signup").addEventListener("submit", async function(e) {
+      e.preventDefault();
+      var btn = document.getElementById("signup-btn");
+      setLoading(btn, true, "Generating your Swar ID…");
+      var firstName = document.getElementById("su-firstname").value.trim();
+      var lastName = document.getElementById("su-lastname").value.trim();
+      var email = document.getElementById("su-email").value.trim().toLowerCase();
+      var phone = document.getElementById("su-phone").value.trim();
+      var course = document.getElementById("su-course").value;
+      var password = document.getElementById("su-password").value;
+      try {
+        var existing = await sb.from("users").select("email").eq("email", email).maybeSingle();
+        if (existing.data) {
+          setLoading(btn, false, "Join the Academy");
+          showToast("✗ This email is already registered.", "error");
+          return;
+        }
+        var swarId = await generateSwarId();
+        var insertRes = await sb.from("users").insert([{
+          swar_id: swarId,
+          first_name: firstName,
+          last_name: lastName,
+          email: email,
+          phone: phone,
+          course: course,
+          password_hash: password,
+          role: "student",
+          is_approved: true
+        }]);
+        if (insertRes.error) throw insertRes.error;
+        setLoading(btn, false, "Join the Academy");
+        this.reset();
+        showIdReveal(firstName, swarId);
+      } catch (err) {
+        console.error(err);
+        setLoading(btn, false, "Join the Academy");
+        showToast("✗ Signup failed: " + (err.message || "Try again"), "error");
+      }
+    });
+  </script>
+</body>
+</html>

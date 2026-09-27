@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Help Desk – Swarsanskar Music Academy</title>
+  <link rel="stylesheet" href="theme.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    .help-layout {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 40px 24px 40px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 28px;
+    }
+    @media (max-width: 680px) {
+      .help-layout { grid-template-columns: 1fr; }
+    }
+    .help-card h3 {
+      font-family: var(--font-display);
+      font-size: 22px;
+      font-weight: 600;
+      color: var(--sand);
+      margin-bottom: 6px;
+    }
+    .help-card > p {
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 20px;
+    }
+    .submit-btn { width: 100%; justify-content: center; }
+    .help-id-display {
+      background: var(--midnight);
+      border: 2px dashed var(--border-s);
+      border-radius: var(--radius);
+      padding: 20px;
+      text-align: center;
+      margin-top: 12px;
+    }
+    .help-id-display .id-label {
+      font-size: 10px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+    .help-id-display .id-value {
+      font-family: var(--font-display);
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--gold);
+      letter-spacing: 2px;
+    }
+    .help-msg {
+      margin-top: 12px;
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+    .track-layout {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 0 24px 60px;
+    }
+    .track-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      box-shadow: var(--shadow);
+    }
+    .track-row {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      align-items: flex-end;
+    }
+    .track-row .field { flex: 1; min-width: 200px; margin-bottom: 0; }
+    .track-result {
+      display: none;
+      margin-top: 20px;
+      padding: 16px;
+      background: var(--midnight);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-s);
+      font-size: 13px;
+      line-height: 1.6;
+    }
+    .faq-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 20px;
+    }
+    .faq-item {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 22px;
+      transition: border-color 0.2s;
+    }
+    .faq-item:hover { border-color: var(--border-s); }
+    .faq-item h4 {
+      font-family: var(--font-display);
+      font-size: 17px;
+      font-weight: 600;
+      color: var(--gold-lt);
+      margin-bottom: 10px;
+    }
+    .faq-item p {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+    .field { margin-bottom: 14px; }
+    .field label {
+      display: block;
+      font-size: 11px;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+    .field input, .field textarea {
+      width: 100%;
+      background: var(--midnight);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-s);
+      padding: 11px 14px;
+      font-family: var(--font-body);
+      font-size: 14px;
+      color: var(--text);
+      outline: none;
+    }
+    .field input:focus, .field textarea:focus {
+      border-color: var(--gold);
+      box-shadow: 0 0 0 3px rgba(201,144,42,0.12);
+    }
+  </style>
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="logo-group">
+        <img src="logo.jpeg" alt="Logo" class="site-logo">
+        <div class="logo-text">
+          <span class="logo-name">Swarsanskar</span>
+          <span class="logo-sub">Music Academy</span>
+        </div>
+      </a>
+      <button class="nav-hamburger" onclick="document.getElementById('siteNav').classList.toggle('open')" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+      <nav class="site-nav" id="siteNav">
+        <a href="index.html">Home</a>
+        <a href="cat.html">Courses</a>
+        <a href="about.html">About</a>
+        <a href="vision.html">Vision</a>
+        <a href="cont.html">Contact</a>
+        <a href="help.html" class="active">Help</a>
+        <a href="Sign.html" class="nav-cta">Sign In</a>
+      </nav>
+    </div>
+  </header>
+
+  <div style="padding: 80px 24px 40px; text-align: center; background: radial-gradient(ellipse 70% 50% at 50% 0%, rgba(201,144,42,0.06) 0%, transparent 70%);">
+    <div style="display:inline-block; font-size:11px; letter-spacing:3px; text-transform:uppercase; color:var(--gold); border:1px solid var(--border-s); border-radius:50px; padding:5px 16px; margin-bottom:20px;">Support</div>
+    <h1 style="font-family:var(--font-display); font-size: clamp(36px,6vw,60px); font-weight:600; color:var(--sand); margin-bottom:12px;">Help Desk</h1>
+    <p style="color:var(--muted); font-size:15px; max-width:480px; margin:0 auto;">Have a question about admissions, batches, or exams? Submit it here and we'll get back to you.</p>
+  </div>
+
+  <div class="help-layout">
+    <div class="help-card card">
+      <h3>Ask a Question</h3>
+      <p>Fill in your question below. We'll respond as soon as possible.</p>
+      <form id="helpForm">
+        <div class="field">
+          <label>Name (optional)</label>
+          <input type="text" id="studentName" placeholder="Your name">
+        </div>
+        <div class="field">
+          <label>Your Question</label>
+          <textarea id="questionText" rows="5" placeholder="Type your question here…" required style="resize: vertical;"></textarea>
+        </div>
+        <button type="submit" class="btn btn-gold submit-btn" id="helpSubmitBtn">Submit Question</button>
+        <p class="help-msg" id="helpMessage"></p>
+      </form>
+    </div>
+
+    <div class="help-card card">
+      <h3>Your Help ID</h3>
+      <p>After submitting a question, your unique Help ID appears here. Save it to track the reply.</p>
+      <div class="help-id-display">
+        <div class="id-label">Help ID</div>
+        <div class="id-value" id="helpIdDisplay">—</div>
+      </div>
+      <p style="margin-top: 16px; font-size: 12px; color: var(--muted);">Keep this ID safe. Use the Track section below to check status anytime.</p>
+    </div>
+  </div>
+
+  <!-- TRACK STATUS -->
+  <div class="track-layout">
+    <div class="track-card">
+      <h3 style="font-family:var(--font-display);font-size:22px;color:var(--sand);margin-bottom:6px;">Track your query</h3>
+      <p style="font-size:13px;color:var(--muted);margin-bottom:18px;">Enter your Help ID to see status and admin reply.</p>
+      <div class="track-row">
+        <div class="field">
+          <label>Help ID</label>
+          <input type="text" id="trackHelpId" placeholder="e.g. HLP-2026-4821">
+        </div>
+        <button type="button" class="btn btn-gold" onclick="trackHelpQuery()" style="padding:11px 20px;">Check Status</button>
+      </div>
+      <div class="track-result" id="trackResult"></div>
+    </div>
+  </div>
+
+  <section class="section-wrap" style="padding-top: 0;">
+    <h2 class="section-title" style="margin-bottom: 8px;">Common Questions</h2>
+    <p class="section-sub" style="margin-bottom: 32px;">Quick answers to what students usually ask</p>
+    <div class="faq-grid">
+      <div class="faq-item">
+        <h4>How to enroll?</h4>
+        <p>Visit the academy or call the contact number. After a short guidance session, a suitable batch will be allotted.</p>
+      </div>
+      <div class="faq-item">
+        <h4>Gandharva exam prep?</h4>
+        <p>Yes — students are guided for ABGMV exams with proper syllabus planning and regular practice sessions.</p>
+      </div>
+      <div class="faq-item">
+        <h4>Who can join?</h4>
+        <p>Students from age 6 and above. Adult learners are equally welcome and placed in suitable batches.</p>
+      </div>
+      <div class="faq-item">
+        <h4>Online classes?</h4>
+        <p>Online and hybrid batches may be available depending on demand. Contact the academy for current availability.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer class="site-footer">
+    <strong>Swarsanskar Music Academy</strong><br>
+    <span style="margin-top: 6px; display: block;">© 2025 All rights reserved.</span>
+  </footer>
+
+  <script>
+    const SUPABASE_URL = "https://znpuvbgasybjziyzccnj.supabase.co";
+    const SUPABASE_KEY = "sb_publishable__3ccgpu-g19-N15oa1azoQ_c_9jFrdH";
+    var sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    async function generateHelpId() {
+      var year = new Date().getFullYear();
+      for (var i = 0; i < 20; i++) {
+        var num = Math.floor(1000 + Math.random() * 9000);
+        var helpId = "HLP-" + year + "-" + num;
+        var res = await sb.from("help_queries").select("help_id").eq("help_id", helpId).maybeSingle();
+        if (!res.data) return helpId;
+      }
+      return "HLP-" + year + "-" + Date.now().toString().slice(-4);
+    }
+
+    document.getElementById("helpForm").addEventListener("submit", async function (e) {
+      e.preventDefault();
+      var q = document.getElementById("questionText").value.trim();
+      var name = document.getElementById("studentName").value.trim();
+      if (!q) return;
+
+      var btn = document.getElementById("helpSubmitBtn");
+      btn.disabled = true;
+      btn.textContent = "Submitting…";
+
+      try {
+        var helpId = await generateHelpId();
+        var swarId = localStorage.getItem("swarId") || null;
+
+        var res = await sb.from("help_queries").insert([{
+          help_id: helpId,
+          swar_id: swarId,
+          name: name || null,
+          message: q,
+          status: "open"
+        }]);
+
+        if (res.error) throw res.error;
+
+        document.getElementById("helpIdDisplay").textContent = helpId;
+        document.getElementById("trackHelpId").value = helpId;
+
+        var who = name || "Dear student";
+        document.getElementById("helpMessage").textContent =
+          who + ", thank you! Your Help ID is " + helpId + ". Save it and use Track below for status.";
+        document.getElementById("helpMessage").style.color = "#c9902a";
+        document.getElementById("questionText").value = "";
+      } catch (err) {
+        console.error(err);
+        document.getElementById("helpMessage").textContent =
+          "Could not submit. Check internet or try again. (" + (err.message || "error") + ")";
+        document.getElementById("helpMessage").style.color = "#f87171";
+      }
+
+      btn.disabled = false;
+      btn.textContent = "Submit Question";
+    });
+
+    async function trackHelpQuery() {
+      var helpId = (document.getElementById("trackHelpId").value || "").trim();
+      var box = document.getElementById("trackResult");
+      if (!helpId) {
+        box.style.display = "block";
+        box.innerHTML = "<span style=\"color:#f87171\">Please enter a Help ID.</span>";
+        return;
+      }
+      box.style.display = "block";
+      box.innerHTML = "<span style=\"color:var(--muted)\">Checking…</span>";
+
+      try {
+        var res = await sb.from("help_queries").select("*").eq("help_id", helpId).maybeSingle();
+        if (res.error) throw res.error;
+        if (!res.data) {
+          box.innerHTML = "<span style=\"color:#f87171\">No query found for this Help ID.</span>";
+          return;
+        }
+        var q = res.data;
+        var statusColor = q.status === "replied" ? "#4ade80" : q.status === "closed" ? "var(--muted)" : "#fbbf24";
+        var html = "<div style=\"margin-bottom:8px;\">Help ID: <strong style=\"color:var(--gold)\">" + q.help_id + "</strong></div>";
+        html += "<div style=\"margin-bottom:10px;\">Status: <strong style=\"color:" + statusColor + ";text-transform:uppercase;\">" + q.status + "</strong></div>";
+        html += "<div style=\"margin-bottom:10px;\"><strong>Your question:</strong><br>" + String(q.message || "").replace(/</g, "&lt;") + "</div>";
+        if (q.admin_reply) {
+          html += "<div style=\"padding:12px;background:rgba(201,144,42,0.08);border-left:3px solid var(--gold);border-radius:4px;\"><strong>Admin reply:</strong><br>" + String(q.admin_reply).replace(/</g, "&lt;") + "</div>";
+        } else {
+          html += "<div style=\"color:var(--muted)\">No reply yet. Please check again later.</div>";
+        }
+        box.innerHTML = html;
+      } catch (err) {
+        console.error(err);
+        box.innerHTML = "<span style=\"color:#f87171\">Error checking status.</span>";
+      }
+    }
+  </script>
+</body>
+</html>

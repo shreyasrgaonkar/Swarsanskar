@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>About Us – Swarsanskar Music Academy</title>
+  <link rel="stylesheet" href="theme.css">
+  <style>
+    .about-hero {
+      padding: 80px 24px 50px;
+      text-align: center;
+      background: radial-gradient(ellipse 70% 50% at 50% 0%, rgba(201,144,42,0.06) 0%, transparent 70%);
+    }
+
+    .about-layout {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 24px 24px 80px;
+      display: grid;
+      grid-template-columns: 1fr 280px;
+      gap: 32px;
+      align-items: start;
+    }
+
+    @media (max-width: 720px) {
+      .about-layout { grid-template-columns: 1fr; }
+      .about-sidebar { order: -1; }
+    }
+
+    .about-body p {
+      font-size: 15px;
+      color: var(--muted);
+      line-height: 1.8;
+      margin-bottom: 20px;
+    }
+
+    .about-body p strong {
+      color: var(--sand);
+      font-weight: 600;
+    }
+
+    .about-body h2 {
+      font-family: var(--font-display);
+      font-size: 36px;
+      font-weight: 600;
+      color: var(--sand);
+      margin-bottom: 24px;
+    }
+
+    .timeline {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      margin: 32px 0;
+      position: relative;
+    }
+
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 11px; top: 6px; bottom: 6px;
+      width: 1px;
+      background: linear-gradient(to bottom, var(--gold), transparent);
+    }
+
+    .tl-item {
+      display: flex;
+      gap: 20px;
+      padding-bottom: 28px;
+      position: relative;
+    }
+
+    .tl-dot {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      border: 2px solid var(--gold);
+      background: var(--midnight);
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 2px;
+    }
+
+    .tl-dot::after {
+      content: '';
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--gold);
+    }
+
+    .tl-content h4 {
+      font-family: var(--font-display);
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--sand);
+      margin-bottom: 4px;
+    }
+
+    .tl-content p {
+      font-size: 13px;
+      color: var(--muted);
+      margin: 0 !important;
+      line-height: 1.5;
+    }
+
+    .tl-year {
+      font-size: 11px;
+      color: var(--gold);
+      letter-spacing: 1px;
+      margin-bottom: 2px;
+    }
+
+    .about-sidebar {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .info-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 22px;
+    }
+
+    .info-card h3 {
+      font-family: var(--font-display);
+      font-size: 18px;
+      color: var(--gold-lt);
+      margin-bottom: 14px;
+      font-weight: 600;
+    }
+
+    .info-card a {
+      color: var(--gold);
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .info-card a:hover { text-decoration: underline; }
+
+    .info-card p {
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+
+    .badge-gold {
+      display: inline-block;
+      background: rgba(201,144,42,0.12);
+      border: 1px solid var(--border-s);
+      color: var(--gold);
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 1px;
+      padding: 4px 10px;
+      border-radius: 50px;
+      margin-bottom: 12px;
+    }
+  </style>
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="logo-group">
+        <img src="logo.jpeg" alt="Logo" class="site-logo">
+        <div class="logo-text">
+          <span class="logo-name">Swarsanskar</span>
+          <span class="logo-sub">Music Academy</span>
+        </div>
+      </a>
+      <button class="nav-hamburger" onclick="document.getElementById('siteNav').classList.toggle('open')" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+      <nav class="site-nav" id="siteNav">
+        <a href="index.html">Home</a>
+        <a href="cat.html">Courses</a>
+        <a href="about.html" class="active">About</a>
+        <a href="vision.html">Vision</a>
+        <a href="cont.html">Contact</a>
+        <a href="help.html">Help</a>
+        <a href="Sign.html" class="nav-cta">Sign In</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="about-hero">
+    <div class="badge-gold">Our Story</div>
+    <h1 style="font-family:var(--font-display); font-size: clamp(36px,6vw,60px); font-weight:600; color:var(--sand); margin: 12px 0;">About Us</h1>
+    <p style="color:var(--muted); font-size:15px; max-width:520px; margin:0 auto;">A humble journey from Sindhudurg to the heart of Mumbai's classical music world.</p>
+  </div>
+
+  <div class="about-layout">
+    <div class="about-body">
+      <h2>The Story of Swarsanskar</h2>
+      <p>
+        Swarsanskar Music Academy was founded by <strong>Shri Ranjit Gaonkar</strong>, a simple and humble man from the village of <strong>Ovliye</strong> in Sindhudurg. His uncle, <strong>Namdevbuva Ghadigaonkar</strong>, was a well-known Adhyatmik Bhajan artist of his time, while his father was an Adhyatmik scholar. Coming from such a rich spiritual and musical background, music naturally became an important part of his life.
+      </p>
+
+      <div class="timeline">
+        <div class="tl-item">
+          <div class="tl-dot"></div>
+          <div class="tl-content">
+            <div class="tl-year">Early Years · Katta</div>
+            <h4>First Steps in Music</h4>
+            <p>Ranjit Gaonkar began his music journey under <strong>Pt. Wamanrao Karane Guruji</strong>. Later, personal reasons brought him to Mumbai.</p>
+          </div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-dot"></div>
+          <div class="tl-content">
+            <div class="tl-year">Mumbai · ~4–5 Years</div>
+            <h4>Pakhawaj with Pt. Madhukar Mahadik</h4>
+            <p>Trained in the <strong>Kudansingh Gharana Pakhawaj Solo</strong> style under the renowned maestro Pt. Madhukar Mahadik.</p>
+          </div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-dot"></div>
+          <div class="tl-content">
+            <div class="tl-year">Continuing Study · 5–6 Years</div>
+            <h4>Further Training under Pt. Prakash Sejwal</h4>
+            <p>Polished his Pakhawaj skills further over several years of dedicated riyaaz.</p>
+          </div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-dot"></div>
+          <div class="tl-content">
+            <div class="tl-year">Vocal Studies</div>
+            <h4>Sangeet Visharad under Shri Rajarambuva Sutar</h4>
+            <p>Completed <strong>Sangeet Visharad</strong> in Vocal music under the guidance of Shri Rajarambuva Sutar.</p>
+          </div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-dot"></div>
+          <div class="tl-content">
+            <div class="tl-year">2007–08 · Kandivali</div>
+            <h4>Academy Founded</h4>
+            <p>Swarsanskar Music Academy first opened its doors in Kandivali, Mumbai.</p>
+          </div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-dot"></div>
+          <div class="tl-content">
+            <div class="tl-year">2014 – Present · Vasai</div>
+            <h4>Academy at Vasai</h4>
+            <p>The academy has been running successfully from his residence in Vasai, guiding students in classical music, Pakhawaj, and Bhajan traditions.</p>
+          </div>
+        </div>
+      </div>
+
+      <p>
+        Apart from being a dedicated musician and teacher, <strong>Shri Ranjit Gaonkar is also a Lawyer</strong> by profession — a remarkable combination of discipline, scholarship, and devotion.
+      </p>
+    </div>
+
+    <div class="about-sidebar">
+      <div class="info-card">
+        <h3>Quick Links</h3>
+        <p><a href="index.html">🏠 Home</a></p>
+        <p><a href="cat.html">🎵 Courses</a></p>
+        <p><a href="cont.html">📞 Contact Us</a></p>
+        <p><a href="vision.html">🌟 Our Vision</a></p>
+      </div>
+
+      <div class="info-card">
+        <h3>Guru's Lineage</h3>
+        <p>Pt. Wamanrao Karane Guruji</p>
+        <p>Pt. Madhukar Mahadik</p>
+        <p>Pt. Prakash Sejwal</p>
+        <p>Shri Rajarambuva Sutar</p>
+      </div>
+
+      <div class="info-card">
+        <h3>Contact</h3>
+        <p><a href="tel:+919821866241">9821866241</a></p>
+        <p><a href="mailto:swarsankarmusic@gmail.com">swarsankarmusic@gmail.com</a></p>
+        <p style="margin-top: 8px;">Vasai – 401202</p>
+      </div>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <strong>Swarsanskar Music Academy</strong><br>
+    <span style="margin-top: 6px; display: block;">© 2025 All rights reserved.</span>
+  </footer>
+
+</body>
+</html>

@@ -1,0 +1,949 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Portal – Swarsanskar Music Academy</title>
+  <link rel="stylesheet" href="theme.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <style>
+    body { display: flex; min-height: 100vh; margin: 0; }
+
+    .sidebar {
+      width: 240px; background: var(--surface); border-right: 1px solid var(--border);
+      display: flex; flex-direction: column; position: fixed; top: 0; left: 0; bottom: 0;
+      z-index: 50; transition: transform 0.3s ease;
+    }
+    .sidebar-brand {
+      padding: 20px 18px; display: flex; align-items: center; gap: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+    .sidebar-brand img {
+      width: 42px; height: 42px; border-radius: 50%; border: 2px solid var(--gold); object-fit: cover;
+    }
+    .sidebar-brand .name {
+      font-family: var(--font-display); font-size: 18px; font-weight: 700;
+      color: var(--sand); line-height: 1.1;
+    }
+    .sidebar-brand .sub {
+      font-size: 10px; letter-spacing: 2px; color: var(--gold); text-transform: uppercase;
+    }
+    .sidebar-nav {
+      flex: 1; padding: 16px 10px; display: flex; flex-direction: column; gap: 4px;
+    }
+    .nav-item {
+      display: flex; align-items: center; gap: 10px; padding: 11px 14px;
+      border-radius: var(--radius-s); font-size: 13px; font-weight: 500;
+      color: var(--muted); cursor: pointer; border: none; background: none;
+      width: 100%; text-align: left; font-family: var(--font-body);
+      transition: all 0.2s; border-left: 3px solid transparent;
+    }
+    .nav-item:hover { background: rgba(201,144,42,0.08); color: var(--gold-lt); }
+    .nav-item.active {
+      background: rgba(201,144,42,0.12); color: var(--gold); border-left-color: var(--gold);
+    }
+    .nav-item .icon {
+      width: 20px; height: 20px; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .nav-item .icon svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .sidebar-footer { padding: 16px; border-top: 1px solid var(--border); }
+    .btn-logout-side {
+      width: 100%; padding: 10px; border: 1px solid var(--border);
+      border-radius: var(--radius-s); background: transparent; color: var(--muted);
+      font-size: 12px; letter-spacing: 1px; text-transform: uppercase; cursor: pointer;
+      font-family: var(--font-body); transition: all 0.2s;
+    }
+    .btn-logout-side:hover { border-color: #f87171; color: #f87171; }
+
+    .main { margin-left: 240px; flex: 1; min-height: 100vh; background: var(--midnight); }
+    .topbar {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 18px 28px; border-bottom: 1px solid var(--border);
+      background: rgba(13,10,20,0.9); backdrop-filter: blur(10px);
+      position: sticky; top: 0; z-index: 40;
+    }
+    .topbar h1 { font-family: var(--font-display); font-size: 22px; color: var(--sand); margin: 0; }
+    .swar-badge {
+      font-size: 11px; letter-spacing: 1px; color: var(--gold);
+      background: rgba(201,144,42,0.1); border: 1px solid var(--border);
+      padding: 5px 12px; border-radius: 50px;
+    }
+    .content { padding: 28px; max-width: 900px; }
+    .menu-toggle {
+      display: none; background: none; border: none; color: var(--gold); font-size: 22px; cursor: pointer;
+    }
+    .sidebar-overlay {
+      display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 45;
+    }
+    .sidebar-overlay.show { display: block; }
+    @media (max-width: 768px) {
+      .sidebar { transform: translateX(-100%); }
+      .sidebar.open { transform: translateX(0); }
+      .main { margin-left: 0; }
+      .menu-toggle { display: block; }
+      .content { padding: 18px; }
+    }
+    .hidden { display: none !important; }
+
+    .dash-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 24px; margin-bottom: 20px; box-shadow: var(--shadow);
+    }
+    .dash-card h2 {
+      font-family: var(--font-display); font-size: 20px; color: var(--sand); margin: 0 0 8px;
+    }
+    .dash-card p { font-size: 13px; color: var(--muted); margin: 0 0 16px; line-height: 1.5; }
+    .status-pill {
+      display: inline-block; font-size: 11px; letter-spacing: 1px; text-transform: uppercase;
+      padding: 4px 12px; border-radius: 50px; font-weight: 600;
+    }
+    .status-pill.none { background: rgba(158,142,126,0.15); color: var(--muted); }
+    .status-pill.submitted { background: rgba(96,165,250,0.15); color: #60a5fa; }
+    .status-pill.verified { background: rgba(74,222,128,0.15); color: #4ade80; }
+    .dash-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
+    .btn-primary, .btn-outline {
+      padding: 10px 18px; border-radius: var(--radius-s); font-family: var(--font-body);
+      font-size: 12px; font-weight: 600; letter-spacing: 0.5px; cursor: pointer;
+      border: none; transition: opacity 0.2s;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--gold-dim), var(--gold)); color: var(--midnight);
+    }
+    .btn-primary:hover { opacity: 0.9; }
+    .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn-outline {
+      background: transparent; border: 1px solid var(--border); color: var(--gold);
+    }
+    .btn-outline:hover { border-color: var(--gold); }
+    .btn-outline:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    .portal-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 28px; box-shadow: var(--shadow);
+    }
+    .portal-card h2 {
+      font-family: var(--font-display); font-size: 22px; color: var(--sand); margin: 0 0 6px;
+    }
+    .card-sub { font-size: 13px; color: var(--muted); margin-bottom: 20px; }
+    .form-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
+    }
+    @media (max-width: 600px) { .form-grid { grid-template-columns: 1fr; } }
+    .field { margin-bottom: 4px; }
+    .field.full { grid-column: 1 / -1; }
+    .field label {
+      display: block; font-size: 11px; letter-spacing: 1.2px; text-transform: uppercase;
+      color: var(--muted); margin-bottom: 6px;
+    }
+    .field label .req { color: #f87171; }
+    .field input, .field select {
+      width: 100%; background: var(--midnight); border: 1px solid var(--border);
+      border-radius: var(--radius-s); padding: 11px 14px; font-family: var(--font-body);
+      font-size: 14px; color: var(--text); outline: none;
+    }
+    .field input:focus, .field select:focus {
+      border-color: var(--gold); box-shadow: 0 0 0 3px rgba(201,144,42,0.12);
+    }
+    .age-display {
+      background: var(--midnight); border: 1px solid var(--border); border-radius: var(--radius-s);
+      padding: 11px 14px; font-size: 14px; color: var(--sand);
+    }
+    .age-display span { color: var(--muted); font-size: 12px; }
+    .status-banner {
+      display: flex; align-items: center; gap: 10px; padding: 12px 16px;
+      border-radius: var(--radius-s); font-size: 13px; margin-bottom: 20px;
+    }
+    .status-banner.info { background: rgba(96,165,250,0.08); border: 1px solid rgba(96,165,250,0.25); color: #93c5fd; }
+    .status-banner.success { background: rgba(74,222,128,0.08); border: 1px solid rgba(74,222,128,0.25); color: #86efac; }
+    .status-banner .dot {
+      width: 8px; height: 8px; border-radius: 50%; background: currentColor; flex-shrink: 0;
+    }
+    .uploads-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
+    }
+    @media (max-width: 600px) { .uploads-grid { grid-template-columns: 1fr; } }
+    .upload-box {
+      border: 1px dashed var(--border); border-radius: var(--radius-s); padding: 16px; text-align: center;
+      background: var(--midnight); transition: border-color 0.2s;
+    }
+    .upload-box.has-file { border-color: var(--gold); border-style: solid; }
+    .upload-box .up-label { font-size: 12px; color: var(--sand); font-weight: 600; margin-bottom: 4px; }
+    .upload-box .up-hint { font-size: 11px; color: var(--muted); margin-bottom: 10px; }
+    .upload-box input[type=file] { display: none; }
+    .upload-box .choose-btn {
+      display: inline-block; padding: 6px 14px; font-size: 11px; border: 1px solid var(--border);
+      border-radius: var(--radius-s); color: var(--gold); cursor: pointer; background: transparent;
+    }
+    .preview-area { display: none; margin-top: 12px; }
+    .preview-area.show { display: block; }
+    .preview-area img {
+      max-width: 100%; max-height: 120px; border-radius: 6px; object-fit: cover; margin-bottom: 6px;
+    }
+    .preview-area .file-name { display: block; font-size: 11px; color: var(--muted); word-break: break-all; }
+    .btn-remove {
+      background: none; border: none; color: #f87171; font-size: 11px; cursor: pointer; margin-top: 4px;
+    }
+    .payment-block {
+      margin-top: 28px; padding: 20px; background: var(--midnight);
+      border: 1px solid var(--border); border-radius: var(--radius-s);
+    }
+    .payment-block h3 {
+      font-family: var(--font-display); font-size: 18px; color: var(--sand); margin: 0 0 8px;
+    }
+    .fee-line { font-size: 14px; color: var(--muted); margin-bottom: 12px; }
+    .fee-line strong { color: var(--gold); font-size: 20px; }
+    .qr-wrap { text-align: center; margin: 16px 0; }
+    .qr-wrap img {
+      width: 200px; height: 200px; object-fit: contain; background: #fff;
+      border-radius: 8px; padding: 8px;
+    }
+    .form-actions {
+      display: flex; flex-wrap: wrap; gap: 12px; margin-top: 28px;
+    }
+    .toast {
+      position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%) translateY(60px);
+      background: var(--surface2); border: 1px solid var(--border); color: var(--text);
+      padding: 12px 24px; border-radius: 50px; font-size: 13px; opacity: 0;
+      transition: all 0.3s ease; z-index: 9999; white-space: nowrap; pointer-events: none;
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    .toast.success { border-color: #4ade80; color: #4ade80; }
+    .toast.error { border-color: #f87171; color: #f87171; }
+    .badge-req {
+      font-size: 9px; letter-spacing: 1px; color: #f87171; border: 1px solid rgba(248,113,113,0.4);
+      padding: 2px 6px; border-radius: 4px; margin-left: 6px;
+    }
+  </style>
+</head>
+<body>
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <img src="logo.jpeg" alt="Logo">
+      <div>
+        <div class="name">Swarsanskar</div>
+        <div class="sub">Student Portal</div>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <button class="nav-item active" data-section="dashboard" onclick="switchSection('dashboard')">
+        <span class="icon"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span> Dashboard
+      </button>
+      <button class="nav-item" data-section="exam" onclick="switchSection('exam')">
+        <span class="icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></span> Exam Form
+      </button>
+    </nav>
+    <div class="sidebar-footer">
+      <button class="btn-logout-side" onclick="handleLogout()">Logout</button>
+    </div>
+  </aside>
+
+  <div class="main">
+    <div class="topbar">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <button class="menu-toggle" onclick="openSidebar()">☰</button>
+        <h1 id="pageTitle">Dashboard</h1>
+      </div>
+      <span class="swar-badge" id="swarIdDisplay">Swar ID: —</span>
+    </div>
+
+    <div class="content">
+
+      <!-- DASHBOARD -->
+      <div id="sec-dashboard">
+        <div class="dash-card">
+          <h2>Namaste, <span id="studentName">Student</span></h2>
+          <p>Welcome to your student portal. Open <strong>Exam Form</strong> from the sidebar to fill ABGMV exam details, upload documents, and pay the fee.</p>
+          <div>
+            Form status:
+            <span class="status-pill none" id="dashStatus">Not submitted</span>
+          </div>
+          <div class="dash-actions">
+            <button type="button" class="btn-primary" onclick="switchSection('exam')">Go to Exam Form →</button>
+            <button type="button" class="btn-outline" id="receiptBtn" disabled onclick="downloadReceipt()">Download Receipt (PDF)</button>
+          </div>
+        </div>
+        <div class="dash-card" id="dashSummary" style="display:none;">
+          <h2>Last submission</h2>
+          <p id="dashSummaryText"></p>
+        </div>
+      </div>
+
+      <!-- EXAM FORM -->
+      <div id="sec-exam" class="hidden">
+        <div class="status-banner info" id="statusBanner">
+          <span class="dot"></span>
+          <span>Your form is <strong>not yet submitted</strong>. Fill details, upload documents, pay the fee, then click Save.</span>
+        </div>
+
+        <div class="portal-card">
+          <h2>Exam Form Details</h2>
+          <p class="card-sub">These details will be used to fill your ABGMV examination form.</p>
+
+          <form id="examForm" onsubmit="return handleSave(event)">
+            <div class="form-grid">
+              <div class="field full">
+                <label>Full Name <span class="req">*</span></label>
+                <input type="text" id="fullName" placeholder="As per official documents" required>
+              </div>
+              <div class="field">
+                <label>Date of Birth <span class="req">*</span></label>
+                <input type="date" id="dob" required onchange="calculateAge()">
+              </div>
+              <div class="field">
+                <label>Age</label>
+                <div class="age-display" id="ageDisplay">— <span>years</span></div>
+              </div>
+              <div class="field">
+                <label>Course Level (ABGMV) <span class="req">*</span></label>
+                <select id="courseLevel" required onchange="updateFee()">
+                  <option value="">Select level</option>
+                  <option value="Prarambhik">Prarambhik</option>
+                  <option value="Praveshika Pratham">Praveshika Pratham</option>
+                  <option value="Praveshika Purna">Praveshika Purna</option>
+                  <option value="Madhyama Pratham">Madhyama Pratham</option>
+                  <option value="Madhyama Purna">Madhyama Purna</option>
+                  <option value="Visharad Pratham">Visharad Pratham</option>
+                  <option value="Visharad Purna">Visharad Purna</option>
+                </select>
+              </div>
+              <div class="field">
+                <label>Exam Type <span class="req">*</span></label>
+                <select id="examType" required onchange="updateFee()">
+                  <option value="">Select type</option>
+                  <option value="Regular">Regular</option>
+                  <option value="Direct">Direct</option>
+                </select>
+              </div>
+            </div>
+
+            <div style="margin-top: 32px;">
+              <h2 style="font-size:20px; margin-bottom:6px;">Documents</h2>
+              <p class="card-sub" style="margin-bottom:16px;">Upload clear scans or photos. Max 5 MB per file. JPG, PNG or PDF accepted.</p>
+              <div class="uploads-grid">
+                <div class="upload-box" id="box-photo">
+                  <div class="up-label">Passport Photo <span class="badge-req">REQUIRED</span></div>
+                  <div class="up-hint">Clear passport-size photo</div>
+                  <label class="choose-btn">Choose Photo
+                    <input type="file" id="file-photo" accept="image/*,.pdf" onchange="handleFile(this,'photo')">
+                  </label>
+                  <div class="preview-area" id="preview-photo">
+                    <img id="img-photo" alt="Preview">
+                    <span class="file-name" id="name-photo"></span>
+                    <button type="button" class="btn-remove" onclick="removeFile('photo')">Remove</button>
+                  </div>
+                </div>
+                <div class="upload-box" id="box-birth">
+                  <div class="up-label">Birth Date Proof <span class="badge-req">REQUIRED</span></div>
+                  <div class="up-hint">Birth certificate / Aadhaar / school ID</div>
+                  <label class="choose-btn">Choose File
+                    <input type="file" id="file-birth" accept="image/*,.pdf" onchange="handleFile(this,'birth')">
+                  </label>
+                  <div class="preview-area" id="preview-birth">
+                    <img id="img-birth" alt="Preview">
+                    <span class="file-name" id="name-birth"></span>
+                    <button type="button" class="btn-remove" onclick="removeFile('birth')">Remove</button>
+                  </div>
+                </div>
+                <div class="upload-box" id="box-marksheet">
+                  <div class="up-label">Previous Marksheet</div>
+                  <div class="up-hint">Only if you gave exams elsewhere</div>
+                  <label class="choose-btn">Choose File
+                    <input type="file" id="file-marksheet" accept="image/*,.pdf" onchange="handleFile(this,'marksheet')">
+                  </label>
+                  <div class="preview-area" id="preview-marksheet">
+                    <img id="img-marksheet" alt="Preview">
+                    <span class="file-name" id="name-marksheet"></span>
+                    <button type="button" class="btn-remove" onclick="removeFile('marksheet')">Remove</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="payment-block">
+              <h3>Exam Fee Payment</h3>
+              <div class="fee-line">Amount: ₹ <strong id="feeAmount">—</strong></div>
+              <p style="font-size:12px;color:var(--muted);margin-bottom:12px;">Scan the QR and pay the exam fee. Then mark payment done and upload screenshot.</p>
+              <div class="qr-wrap">
+                <img src="my-qr.jpeg" alt="UPI QR Code"
+                     onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22200%22 height=%22200%22%3E%3Crect fill=%22%23f5ede0%22 width=%22200%22 height=%22200%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22 fill=%22%239e8e7e%22 font-size=%2212%22%3EAdd my-qr.jpeg%3C/text%3E%3C/svg%3E'">
+              </div>
+              <button type="button" class="btn-outline" id="paymentDoneBtn" onclick="markPaymentDone()" style="width:100%;margin-bottom:12px;">I have completed the payment</button>
+              <div id="paymentUploadArea" style="display:none;">
+                <div class="upload-box" id="box-payment">
+                  <div class="up-label">Payment Screenshot <span class="badge-req">REQUIRED</span></div>
+                  <div class="up-hint">Upload screenshot of successful UPI payment</div>
+                  <label class="choose-btn">Choose Screenshot
+                    <input type="file" id="file-payment" accept="image/*,.pdf" onchange="handleFile(this,'payment')">
+                  </label>
+                  <div class="preview-area" id="preview-payment">
+                    <img id="img-payment" alt="Preview">
+                    <span class="file-name" id="name-payment"></span>
+                    <button type="button" class="btn-remove" onclick="removeFile('payment')">Remove</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-actions">
+              <button type="submit" class="btn-primary" id="saveBtn">Save All Details</button>
+              <button type="button" class="btn-outline" onclick="resetForm()">Clear Form</button>
+              <button type="button" class="btn-outline" id="receiptBtn2" disabled onclick="downloadReceipt()">Download Receipt (PDF)</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const SUPABASE_URL = "https://znpuvbgasybjziyzccnj.supabase.co";
+    const SUPABASE_KEY = "sb_publishable__3ccgpu-g19-N15oa1azoQ_c_9jFrdH";
+    var sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    const FEE_MAP = {
+      Regular: {
+        "Prarambhik": 300,
+        "Praveshika Pratham": 400,
+        "Praveshika Purna": 450,
+        "Madhyama Pratham": 550,
+        "Madhyama Purna": 650,
+        "Visharad Pratham": 800,
+        "Visharad Purna": 1000
+      },
+      Direct: {
+        "Prarambhik": 450,
+        "Praveshika Pratham": 550,
+        "Praveshika Purna": 650,
+        "Madhyama Pratham": 750,
+        "Madhyama Purna": 900,
+        "Visharad Pratham": 1100,
+        "Visharad Purna": 1300
+      }
+    };
+
+    const CURRENT_STUDENT = {
+      swarId: localStorage.getItem("swarId") || "",
+      firstName: localStorage.getItem("firstName") || "Student",
+      lastName: localStorage.getItem("lastName") || "",
+      email: localStorage.getItem("email") || "",
+      role: localStorage.getItem("role") || "student"
+    };
+
+    const selectedFiles = { photo: null, birth: null, marksheet: null, payment: null };
+    var existingPaths = { photo: null, birth: null, marksheet: null, payment: null };
+    var paymentConfirmed = false;
+    var existingFormId = null;
+    var lastSavedData = null;
+
+    document.addEventListener("DOMContentLoaded", async function () {
+      if (!CURRENT_STUDENT.swarId || CURRENT_STUDENT.role === "admin") {
+        showToast("Please sign in as a student first", "error");
+        setTimeout(function () { window.location.href = "Sign.html"; }, 1200);
+        return;
+      }
+      document.getElementById("feeAmount").textContent = "—";
+      var full = (CURRENT_STUDENT.firstName + " " + CURRENT_STUDENT.lastName).trim();
+      document.getElementById("studentName").textContent = CURRENT_STUDENT.firstName || "Student";
+      document.getElementById("swarIdDisplay").textContent = "Swar ID: " + CURRENT_STUDENT.swarId;
+      document.getElementById("fullName").value = full;
+      await loadFromSupabase();
+    });
+
+    function switchSection(name) {
+      document.getElementById("sec-dashboard").classList.toggle("hidden", name !== "dashboard");
+      document.getElementById("sec-exam").classList.toggle("hidden", name !== "exam");
+      document.querySelectorAll(".nav-item").forEach(function (el) {
+        el.classList.toggle("active", el.dataset.section === name);
+      });
+      document.getElementById("pageTitle").textContent = name === "exam" ? "Exam Form" : "Dashboard";
+      closeSidebar();
+    }
+    function openSidebar() {
+      document.getElementById("sidebar").classList.add("open");
+      document.getElementById("sidebarOverlay").classList.add("show");
+    }
+    function closeSidebar() {
+      document.getElementById("sidebar").classList.remove("open");
+      document.getElementById("sidebarOverlay").classList.remove("show");
+    }
+
+    function updateFee() {
+      var level = document.getElementById("courseLevel").value;
+      var type = document.getElementById("examType").value;
+      var amount = (type && level && FEE_MAP[type]) ? FEE_MAP[type][level] : null;
+      document.getElementById("feeAmount").textContent = amount ? amount : "—";
+    }
+
+    function calculateAge() {
+      var dobVal = document.getElementById("dob").value;
+      var display = document.getElementById("ageDisplay");
+      if (!dobVal) { display.innerHTML = "— <span>years</span>"; return null; }
+      var dob = new Date(dobVal);
+      var today = new Date();
+      var age = today.getFullYear() - dob.getFullYear();
+      var m = today.getMonth() - dob.getMonth();
+      if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) age--;
+      if (age < 0 || age > 120) { display.innerHTML = "Invalid <span></span>"; return null; }
+      display.innerHTML = age + " <span>years</span>";
+      return age;
+    }
+
+    function markPaymentDone() {
+      paymentConfirmed = true;
+      var btn = document.getElementById("paymentDoneBtn");
+      btn.classList.add("confirmed");
+      btn.textContent = "✓ Payment marked as done";
+      btn.disabled = true;
+      document.getElementById("paymentUploadArea").style.display = "block";
+      showToast("Now upload your payment screenshot", "success");
+    }
+
+    function handleFile(input, key) {
+      var file = input.files[0];
+      if (!file) return;
+      if (file.size > 5 * 1024 * 1024) {
+        showToast("File too large. Max 5 MB allowed.", "error");
+        input.value = "";
+        return;
+      }
+      selectedFiles[key] = file;
+      var preview = document.getElementById("preview-" + key);
+      var img = document.getElementById("img-" + key);
+      var nameEl = document.getElementById("name-" + key);
+      document.getElementById("box-" + key).classList.add("has-file");
+      nameEl.textContent = file.name;
+      if (file.type.indexOf("image/") === 0) {
+        var reader = new FileReader();
+        reader.onload = function (e) { img.src = e.target.result; img.style.display = "block"; };
+        reader.readAsDataURL(file);
+      } else {
+        img.style.display = "none";
+        nameEl.textContent = "📄 " + file.name;
+      }
+      preview.classList.add("show");
+    }
+
+    function removeFile(key) {
+      selectedFiles[key] = null;
+      document.getElementById("file-" + key).value = "";
+      document.getElementById("preview-" + key).classList.remove("show");
+      document.getElementById("box-" + key).classList.remove("has-file");
+      document.getElementById("img-" + key).src = "";
+    }
+
+    function showExistingDoc(key, path) {
+      if (!path) return;
+      existingPaths[key] = path;
+      var box = document.getElementById("box-" + key);
+      var preview = document.getElementById("preview-" + key);
+      var img = document.getElementById("img-" + key);
+      var nameEl = document.getElementById("name-" + key);
+      if (!box) return;
+      box.classList.add("has-file");
+      nameEl.textContent = path.split("/").pop();
+      var url = SUPABASE_URL + "/storage/v1/object/public/documents/" + path;
+      if (/\.(jpg|jpeg|png|webp|gif)$/i.test(path)) {
+        img.src = url; img.style.display = "block";
+      } else {
+        img.style.display = "none";
+        nameEl.textContent = "📄 " + path.split("/").pop();
+      }
+      preview.classList.add("show");
+    }
+
+    async function uploadFile(file, folder) {
+      if (!file) return null;
+      var ext = (file.name.split(".").pop() || "bin").toLowerCase();
+      var path = CURRENT_STUDENT.swarId + "/" + folder + "_" + Date.now() + "." + ext;
+      var res = await sb.storage.from("documents").upload(path, file, {
+        cacheControl: "3600", upsert: true,
+        contentType: file.type || "application/octet-stream"
+      });
+      if (res.error) throw res.error;
+      return path;
+    }
+
+    async function handleSave(e) {
+      e.preventDefault();
+      var fullName = document.getElementById("fullName").value.trim();
+      var dob = document.getElementById("dob").value;
+      var courseLevel = document.getElementById("courseLevel").value;
+      var examType = document.getElementById("examType").value;
+      var age = calculateAge();
+
+      if (!fullName || !dob || !courseLevel || !examType) {
+        showToast("Please fill all required fields.", "error"); return false;
+      }
+      if (!selectedFiles.photo && !existingPaths.photo) {
+        showToast("Passport photo is required.", "error"); return false;
+      }
+      if (!selectedFiles.birth && !existingPaths.birth) {
+        showToast("Birth date proof is required.", "error"); return false;
+      }
+      if (!paymentConfirmed && !existingPaths.payment) {
+        showToast('Please click "I have completed the payment".', "error"); return false;
+      }
+      if (!selectedFiles.payment && !existingPaths.payment) {
+        showToast("Payment screenshot is required.", "error"); return false;
+      }
+
+      var saveBtn = document.getElementById("saveBtn");
+      saveBtn.disabled = true;
+      saveBtn.textContent = "Saving…";
+
+      try {
+        var photoPath = selectedFiles.photo ? await uploadFile(selectedFiles.photo, "photo") : existingPaths.photo;
+        var birthPath = selectedFiles.birth ? await uploadFile(selectedFiles.birth, "birth") : existingPaths.birth;
+        var markPath = selectedFiles.marksheet ? await uploadFile(selectedFiles.marksheet, "marksheet") : existingPaths.marksheet;
+        var payPath = selectedFiles.payment ? await uploadFile(selectedFiles.payment, "payment") : existingPaths.payment;
+        var feeAmount = (FEE_MAP[examType] && FEE_MAP[examType][courseLevel]) || 0;
+
+        var row = {
+          swar_id: CURRENT_STUDENT.swarId,
+          full_name: fullName,
+          dob: dob,
+          age: age,
+          course_level: courseLevel,
+          exam_type: examType,
+          fee_amount: feeAmount,
+          photo_path: photoPath,
+          birth_proof_path: birthPath,
+          marksheet_path: markPath,
+          payment_screenshot_path: payPath,
+          payment_confirmed: true,
+          status: "submitted",
+          updated_at: new Date().toISOString()
+        };
+
+        var result;
+        if (existingFormId) {
+          result = await sb.from("exam_forms").update(row).eq("id", existingFormId).select().maybeSingle();
+        } else {
+          var existing = await sb.from("exam_forms").select("id").eq("swar_id", CURRENT_STUDENT.swarId).maybeSingle();
+          if (existing.data && existing.data.id) {
+            existingFormId = existing.data.id;
+            result = await sb.from("exam_forms").update(row).eq("id", existingFormId).select().maybeSingle();
+          } else {
+            result = await sb.from("exam_forms").insert([row]).select().maybeSingle();
+          }
+        }
+        if (result.error) throw result.error;
+        if (result.data) {
+          existingFormId = result.data.id;
+          lastSavedData = result.data;
+        } else {
+          lastSavedData = Object.assign({ status: "submitted", swar_id: CURRENT_STUDENT.swarId }, row);
+        }
+
+        existingPaths.photo = photoPath;
+        existingPaths.birth = birthPath;
+        existingPaths.marksheet = markPath;
+        existingPaths.payment = payPath;
+
+        updateDashboardStatus(lastSavedData);
+        document.getElementById("statusBanner").className = "status-banner success";
+        document.getElementById("statusBanner").innerHTML =
+          "<span class=\"dot\"></span><span>Saved on " + new Date().toLocaleString("en-IN") + ". You can download receipt from Dashboard.</span>";
+        showToast("Everything saved successfully!", "success");
+      } catch (err) {
+        console.error(err);
+        showToast("Save failed: " + (err.message || "Try again"), "error");
+      }
+      saveBtn.disabled = false;
+      saveBtn.textContent = "Save All Details";
+      return false;
+    }
+
+    async function loadFromSupabase() {
+      try {
+        var res = await sb.from("exam_forms").select("*").eq("swar_id", CURRENT_STUDENT.swarId).maybeSingle();
+        if (res.error) throw res.error;
+        if (!res.data) return;
+        var data = res.data;
+        existingFormId = data.id;
+        lastSavedData = data;
+
+        if (data.full_name) document.getElementById("fullName").value = data.full_name;
+        if (data.dob) { document.getElementById("dob").value = data.dob; calculateAge(); }
+        if (data.course_level) document.getElementById("courseLevel").value = data.course_level;
+        if (data.exam_type) document.getElementById("examType").value = data.exam_type;
+        updateFee();
+
+        if (data.payment_confirmed) {
+          paymentConfirmed = true;
+          var btn = document.getElementById("paymentDoneBtn");
+          btn.textContent = "✓ Payment marked as done";
+          btn.disabled = true;
+          document.getElementById("paymentUploadArea").style.display = "block";
+        }
+        showExistingDoc("photo", data.photo_path);
+        showExistingDoc("birth", data.birth_proof_path);
+        showExistingDoc("marksheet", data.marksheet_path);
+        showExistingDoc("payment", data.payment_screenshot_path);
+        existingPaths.photo = data.photo_path;
+        existingPaths.birth = data.birth_proof_path;
+        existingPaths.marksheet = data.marksheet_path;
+        existingPaths.payment = data.payment_screenshot_path;
+
+        updateDashboardStatus(data);
+        document.getElementById("statusBanner").className = "status-banner success";
+        document.getElementById("statusBanner").innerHTML =
+          "<span class=\"dot\"></span><span>Previously saved on " +
+          new Date(data.updated_at || data.created_at).toLocaleString("en-IN") + ".</span>";
+      } catch (err) {
+        console.warn("Could not load saved form", err);
+      }
+    }
+
+    function updateDashboardStatus(data) {
+      var pill = document.getElementById("dashStatus");
+      var summary = document.getElementById("dashSummary");
+      var text = document.getElementById("dashSummaryText");
+      var st = (data && data.status) || "none";
+      pill.className = "status-pill " + (st === "verified" ? "verified" : st === "submitted" ? "submitted" : "none");
+      pill.textContent = st === "verified" ? "Verified" : st === "submitted" ? "Submitted" : "Not submitted";
+      document.getElementById("receiptBtn").disabled = !data;
+      document.getElementById("receiptBtn2").disabled = !data;
+      if (data) {
+        summary.style.display = "block";
+        text.innerHTML =
+          "<strong>" + (data.full_name || "") + "</strong><br>" +
+          (data.course_level || "") + " · " + (data.exam_type || "") +
+          " · ₹" + (data.fee_amount || 0) + "<br>" +
+          "Status: " + (data.status || "submitted");
+      }
+    }
+
+    function loadCircularLogo(src, size) {
+      size = size || 256;
+      return new Promise(function (resolve) {
+        var img = new Image();
+        img.crossOrigin = "anonymous";
+        img.onload = function () {
+          try {
+            var canvas = document.createElement("canvas");
+            canvas.width = size;
+            canvas.height = size;
+            var ctx = canvas.getContext("2d");
+            // white circle background
+            ctx.beginPath();
+            ctx.arc(size / 2, size / 2, size / 2, 0, Math.PI * 2);
+            ctx.closePath();
+            ctx.fillStyle = "#ffffff";
+            ctx.fill();
+            // clip to circle
+            ctx.beginPath();
+            ctx.arc(size / 2, size / 2, size / 2 - 2, 0, Math.PI * 2);
+            ctx.closePath();
+            ctx.clip();
+            // cover-fit image
+            var iw = img.naturalWidth;
+            var ih = img.naturalHeight;
+            var scale = Math.max(size / iw, size / ih);
+            var dw = iw * scale;
+            var dh = ih * scale;
+            ctx.drawImage(img, (size - dw) / 2, (size - dh) / 2, dw, dh);
+            resolve(canvas.toDataURL("image/png"));
+          } catch (e) {
+            resolve(null);
+          }
+        };
+        img.onerror = function () { resolve(null); };
+        img.src = src;
+      });
+    }
+
+    async function downloadReceipt() {
+      if (!lastSavedData) {
+        showToast("Save the form first to download receipt.", "error");
+        return;
+      }
+      var d = lastSavedData;
+      var jsPDF = window.jspdf.jsPDF;
+      var doc = new jsPDF({ unit: "mm", format: "a4" });
+      var pageW = doc.internal.pageSize.getWidth();
+      var margin = 14;
+      var gold = [184, 134, 11];
+      var dark = [30, 24, 40];
+      var muted = [120, 110, 100];
+
+      // Outer border
+      doc.setDrawColor(gold[0], gold[1], gold[2]);
+      doc.setLineWidth(0.8);
+      doc.rect(margin, margin, pageW - margin * 2, 270);
+
+      // Inner thin border
+      doc.setLineWidth(0.3);
+      doc.rect(margin + 2, margin + 2, pageW - margin * 2 - 4, 266);
+
+      // Header bar
+      doc.setFillColor(dark[0], dark[1], dark[2]);
+      doc.rect(margin + 2, margin + 2, pageW - margin * 2 - 4, 32, "F");
+
+      // Circular logo with margin
+      var logoSize = 20;
+      var logoX = margin + 8;
+      var logoY = margin + 8;
+      var logoData = await loadCircularLogo("logo.jpeg", 256);
+      if (logoData) {
+        try {
+          doc.addImage(logoData, "PNG", logoX, logoY, logoSize, logoSize);
+          // gold ring around logo
+          doc.setDrawColor(gold[0], gold[1], gold[2]);
+          doc.setLineWidth(0.7);
+          doc.circle(logoX + logoSize / 2, logoY + logoSize / 2, logoSize / 2 + 0.8);
+        } catch (e) {}
+      }
+
+      // Academy name (English only — jsPDF default fonts do not support Devanagari)
+      doc.setTextColor(255, 255, 255);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(16);
+      doc.text("Swarsanskar Music Academy", pageW / 2 + 8, margin + 15, { align: "center" });
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(9);
+      doc.setTextColor(gold[0], gold[1], gold[2]);
+      doc.text("ABGMV Exam Form Receipt", pageW / 2 + 8, margin + 23, { align: "center" });
+      doc.setTextColor(180, 180, 180);
+      doc.setFontSize(8);
+      doc.text("From Notes to Values  |  Music Academy, Vasai", pageW / 2 + 8, margin + 29, { align: "center" });
+
+      // Receipt meta line
+      var issued = new Date(d.updated_at || d.created_at || Date.now()).toLocaleString("en-IN");
+      doc.setTextColor(muted[0], muted[1], muted[2]);
+      doc.setFontSize(9);
+      doc.text("Issued: " + issued, margin + 8, margin + 42);
+      doc.text("Swar ID: " + (d.swar_id || CURRENT_STUDENT.swarId || "—"), pageW - margin - 8, margin + 42, { align: "right" });
+
+      // Gold divider
+      doc.setDrawColor(gold[0], gold[1], gold[2]);
+      doc.setLineWidth(0.5);
+      doc.line(margin + 8, margin + 46, pageW - margin - 8, margin + 46);
+
+      // Section title
+      doc.setTextColor(dark[0], dark[1], dark[2]);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(12);
+      doc.text("Student & Exam Details", margin + 8, margin + 56);
+
+      // Table-like rows
+      var rows = [
+        ["Full Name", d.full_name || "—"],
+        ["Swar ID", d.swar_id || CURRENT_STUDENT.swarId || "—"],
+        ["Date of Birth", d.dob || "—"],
+        ["Age", d.age != null ? String(d.age) + " years" : "—"],
+        ["Course Level", d.course_level || "—"],
+        ["Exam Type", d.exam_type || "—"],
+        ["Exam Fee", "Rs. " + (d.fee_amount != null ? d.fee_amount : "—")],
+        ["Payment", d.payment_confirmed ? "Confirmed" : "Pending"],
+        ["Form Status", (d.status || "submitted").toUpperCase()]
+      ];
+
+      var tableTop = margin + 62;
+      var rowH = 11;
+      var col1 = margin + 8;
+      var col2 = margin + 55;
+      var tableW = pageW - margin * 2 - 16;
+
+      rows.forEach(function (row, i) {
+        var y = tableTop + i * rowH;
+        if (i % 2 === 0) {
+          doc.setFillColor(248, 244, 236);
+          doc.rect(col1, y, tableW, rowH, "F");
+        }
+        doc.setDrawColor(220, 210, 190);
+        doc.setLineWidth(0.2);
+        doc.rect(col1, y, tableW, rowH);
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(9);
+        doc.setTextColor(100, 90, 80);
+        doc.text(row[0], col1 + 3, y + 7);
+        doc.setFont("helvetica", "normal");
+        doc.setTextColor(30, 24, 40);
+        doc.text(String(row[1]), col2, y + 7);
+      });
+
+      var afterTable = tableTop + rows.length * rowH + 12;
+
+      // Fee highlight box
+      doc.setFillColor(255, 248, 230);
+      doc.setDrawColor(gold[0], gold[1], gold[2]);
+      doc.setLineWidth(0.6);
+      doc.roundedRect(margin + 8, afterTable, tableW, 18, 2, 2, "FD");
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(11);
+      doc.setTextColor(dark[0], dark[1], dark[2]);
+      doc.text("Amount Paid / Due", margin + 14, afterTable + 12);
+      doc.setTextColor(gold[0], gold[1], gold[2]);
+      doc.setFontSize(14);
+      doc.text("Rs. " + (d.fee_amount != null ? d.fee_amount : "—"), pageW - margin - 14, afterTable + 12, { align: "right" });
+
+      // Notes
+      var noteY = afterTable + 30;
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(10);
+      doc.setTextColor(dark[0], dark[1], dark[2]);
+      doc.text("Notes", margin + 8, noteY);
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(8);
+      doc.setTextColor(muted[0], muted[1], muted[2]);
+      doc.text("• This is a system-generated receipt for ABGMV exam form submission.", margin + 8, noteY + 7);
+      doc.text("• Please keep this for your records. Documents are stored with the academy.", margin + 8, noteY + 12);
+      doc.text("• For queries, use Help Desk on the website or contact the academy.", margin + 8, noteY + 17);
+
+      // Footer
+      doc.setDrawColor(gold[0], gold[1], gold[2]);
+      doc.setLineWidth(0.4);
+      doc.line(margin + 8, 268, pageW - margin - 8, 268);
+      doc.setFontSize(8);
+      doc.setTextColor(muted[0], muted[1], muted[2]);
+      doc.text("Swarsanskar Music Academy  |  Vasai  |  swarsanskar.vercel.app", pageW / 2, 275, { align: "center" });
+      doc.setTextColor(gold[0], gold[1], gold[2]);
+      doc.text("Thank you for choosing Swarsanskar", pageW / 2, 280, { align: "center" });
+
+      doc.save((d.swar_id || "student") + "-exam-receipt.pdf");
+      showToast("Receipt downloaded", "success");
+    }
+
+    function resetForm() {
+      if (!confirm("Clear form on screen? Server data stays until you Save again.")) return;
+      document.getElementById("examForm").reset();
+      document.getElementById("ageDisplay").innerHTML = "— <span>years</span>";
+      ["photo", "birth", "marksheet", "payment"].forEach(removeFile);
+      paymentConfirmed = false;
+      var btn = document.getElementById("paymentDoneBtn");
+      btn.textContent = "I have completed the payment";
+      btn.disabled = false;
+      document.getElementById("paymentUploadArea").style.display = "none";
+      document.getElementById("feeAmount").textContent = "—";
+      document.getElementById("statusBanner").className = "status-banner info";
+      document.getElementById("statusBanner").innerHTML =
+        "<span class=\"dot\"></span><span>Your form is <strong>not yet submitted</strong>. Fill details, upload documents, pay the fee, then click Save.</span>";
+      showToast("Form cleared on screen.", "success");
+    }
+
+    function showToast(msg, type) {
+      type = type || "success";
+      var t = document.getElementById("toast");
+      t.textContent = msg;
+      t.className = "toast " + type + " show";
+      setTimeout(function () { t.classList.remove("show"); }, 3200);
+    }
+
+    function handleLogout() {
+      localStorage.removeItem("swarId");
+      localStorage.removeItem("firstName");
+      localStorage.removeItem("lastName");
+      localStorage.removeItem("email");
+      localStorage.removeItem("role");
+      window.location.href = "Sign.html";
+    }
+  </script>
+</body>
+</html>

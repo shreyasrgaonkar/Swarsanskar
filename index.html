@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Swarsanskar Music Academy</title>
+  <link rel="stylesheet" href="theme.css">
+  <style>
+    /* ── HERO ───────────────────────────────── */
+    .hero {
+      min-height: 88vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      background:
+        radial-gradient(ellipse 80% 60% at 50% 30%, rgba(201,144,42,0.07) 0%, transparent 70%),
+        linear-gradient(180deg, #12091e 0%, #0d0a14 100%);
+      padding: 80px 24px 60px;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image:
+        repeating-linear-gradient(90deg, rgba(201,144,42,0.04) 0px, rgba(201,144,42,0.04) 1px, transparent 1px, transparent 80px),
+        repeating-linear-gradient(0deg, rgba(201,144,42,0.04) 0px, rgba(201,144,42,0.04) 1px, transparent 1px, transparent 80px);
+      pointer-events: none;
+    }
+
+    .hero-badge {
+      display: inline-block;
+      font-size: 11px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--gold);
+      border: 1px solid var(--border-s);
+      border-radius: 50px;
+      padding: 5px 16px;
+      margin-bottom: 28px;
+      animation: fadeUp 0.6s ease both;
+    }
+
+    .hero-title {
+      font-family: var(--font-display);
+      font-size: clamp(42px, 8vw, 88px);
+      font-weight: 700;
+      color: var(--sand);
+      line-height: 1.05;
+      margin-bottom: 12px;
+      animation: fadeUp 0.6s 0.1s ease both;
+    }
+
+    .hero-title em {
+      font-style: italic;
+      color: var(--gold-lt);
+    }
+
+    .hero-tagline {
+      font-family: var(--font-display);
+      font-size: clamp(18px, 3vw, 26px);
+      font-style: italic;
+      color: var(--gold);
+      margin-bottom: 20px;
+      animation: fadeUp 0.6s 0.2s ease both;
+    }
+
+    .hero-desc {
+      font-size: 15px;
+      color: var(--muted);
+      max-width: 520px;
+      margin: 0 auto 36px;
+      animation: fadeUp 0.6s 0.3s ease both;
+      line-height: 1.7;
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
+      animation: fadeUp 0.6s 0.4s ease both;
+    }
+
+    /* ── STRINGS VISUAL ─────────────────────── */
+    .strings-bar {
+      width: 100%;
+      overflow: hidden;
+      height: 48px;
+      position: relative;
+      margin: 0;
+      background: transparent;
+    }
+
+    .strings-bar svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    /* ── FEATURES GRID ──────────────────────── */
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 20px;
+    }
+
+    .feature-pill {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      text-align: center;
+      transition: transform 0.25s, box-shadow 0.25s, border-color 0.25s;
+    }
+
+    .feature-pill:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 16px 40px rgba(0,0,0,0.4);
+      border-color: var(--border-s);
+    }
+
+    .feature-icon {
+      font-size: 32px;
+      margin-bottom: 10px;
+    }
+
+    .feature-pill h3 {
+      font-family: var(--font-display);
+      font-size: 17px;
+      font-weight: 600;
+      color: var(--sand);
+      margin-bottom: 6px;
+    }
+
+    .feature-pill p {
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    /* ── BOOKS SECTION ─────────────────────── */
+    .books-row {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .book-card {
+      width: 168px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      cursor: pointer;
+      transition: transform 0.25s, box-shadow 0.25s;
+      flex-shrink: 0;
+    }
+
+    .book-card:hover {
+      transform: translateY(-6px) rotate(-1deg);
+      box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+      border-color: var(--border-s);
+    }
+
+    .book-card img {
+      width: 100%;
+      height: 220px;
+      object-fit: cover;
+      display: block;
+    }
+
+    .book-info {
+      padding: 14px;
+    }
+
+    .book-info h3 {
+      font-family: var(--font-display);
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--sand);
+      margin-bottom: 4px;
+      line-height: 1.3;
+    }
+
+    .book-info p {
+      font-size: 11px;
+      color: var(--muted);
+      line-height: 1.4;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    /* ── STATS STRIP ─────────────────────── */
+    .stats-strip {
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .stats-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 40px 24px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 32px;
+      text-align: center;
+    }
+
+    .stat-item h2 {
+      font-family: var(--font-display);
+      font-size: 44px;
+      font-weight: 700;
+      color: var(--gold);
+      line-height: 1;
+    }
+
+    .stat-item p {
+      font-size: 12px;
+      color: var(--muted);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-top: 4px;
+    }
+
+    /* ── ANIMATIONS ────────────────────── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 600px) {
+      .books-row { gap: 14px; }
+      .book-card { width: 140px; }
+      .book-card img { height: 180px; }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="logo-group">
+        <img src="logo.jpeg" alt="Swarsanskar Logo" class="site-logo">
+        <div class="logo-text">
+          <span class="logo-name">Swarsanskar</span>
+          <span class="logo-sub">Music Academy</span>
+        </div>
+      </a>
+
+      <button class="nav-hamburger" onclick="toggleNav()" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+
+      <nav class="site-nav" id="siteNav">
+        <a href="index.html" class="active">Home</a>
+        <a href="cat.html">Courses</a>
+        <a href="about.html">About</a>
+        <a href="vision.html">Vision</a>
+        <a href="cont.html">Contact</a>
+        <a href="help.html">Help</a>
+        <a href="Sign.html" class="nav-cta">Sign In</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div>
+      <div class="hero-badge">Vasai · Est. 2007</div>
+      <h1 class="hero-title">Music is the<br><em>language of the soul</em></h1>
+      <p class="hero-tagline">स्वरांपासून संस्कारांपर्यंत</p>
+      <p class="hero-desc">
+        Learn Hindustani classical vocal, Pakhawaj, and Bhajan from a dedicated guru rooted in the living tradition of India's greatest gharanas.
+      </p>
+      <div class="hero-actions">
+        <a href="cat.html" class="btn btn-gold">Explore Courses</a>
+        <a href="cont.html" class="btn btn-outline">Get in Touch</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Decorative strings -->
+  <div class="strings-bar">
+    <svg viewBox="0 0 1440 48" preserveAspectRatio="none" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <line x1="0" y1="8"  x2="1440" y2="8"  stroke="rgba(201,144,42,0.15)" stroke-width="1"/>
+      <line x1="0" y1="16" x2="1440" y2="16" stroke="rgba(201,144,42,0.25)" stroke-width="1"/>
+      <line x1="0" y1="24" x2="1440" y2="24" stroke="rgba(201,144,42,0.40)" stroke-width="1.5"/>
+      <line x1="0" y1="32" x2="1440" y2="32" stroke="rgba(201,144,42,0.25)" stroke-width="1"/>
+      <line x1="0" y1="40" x2="1440" y2="40" stroke="rgba(201,144,42,0.15)" stroke-width="1"/>
+      <!-- tuning pegs -->
+      <circle cx="24"   cy="24" r="3.5" fill="#c9902a" opacity="0.6"/>
+      <circle cx="360"  cy="24" r="3.5" fill="#c9902a" opacity="0.6"/>
+      <circle cx="720"  cy="24" r="3.5" fill="#c9902a" opacity="0.8"/>
+      <circle cx="1080" cy="24" r="3.5" fill="#c9902a" opacity="0.6"/>
+      <circle cx="1416" cy="24" r="3.5" fill="#c9902a" opacity="0.6"/>
+    </svg>
+  </div>
+
+  <!-- STATS -->
+  <div class="stats-strip">
+    <div class="stats-inner">
+      <div class="stat-item"><h2>15+</h2><p>Years of Teaching</p></div>
+      <div class="stat-item"><h2>2</h2><p>Gharana Traditions</p></div>
+      <div class="stat-item"><h2>5</h2><p>Course Disciplines</p></div>
+      <div class="stat-item"><h2>100+</h2><p>Students Guided</p></div>
+    </div>
+  </div>
+
+  <!-- FEATURES -->
+  <section class="section-wrap">
+    <div style="margin-bottom: 48px; text-align: center;">
+      <h2 class="section-title">Why Swarsanskar?</h2>
+      <p class="section-sub">A living tradition — not just a curriculum</p>
+    </div>
+    <div class="features-grid">
+      <div class="feature-pill">
+        <div class="feature-icon">🎓</div>
+        <h3>Guru–Shishya Bond</h3>
+        <p>Personal attention in the authentic Indian teaching tradition.</p>
+      </div>
+      <div class="feature-pill">
+        <div class="feature-icon">🥁</div>
+        <h3>Pakhawaj Mastery</h3>
+        <p>Rare Kudansingh and Nana Panse Gharana solo vadan styles.</p>
+      </div>
+      <div class="feature-pill">
+        <div class="feature-icon">📜</div>
+        <h3>ABGMV Exams</h3>
+        <p>Systematic prep from Prarambhik all the way to Visharad Purna.</p>
+      </div>
+      <div class="feature-pill">
+        <div class="feature-icon">🙏</div>
+        <h3>Bhajan & Bhakti</h3>
+        <p>Warkari and Prasadik bhajan traditions kept alive with devotion.</p>
+      </div>
+      <div class="feature-pill">
+        <div class="feature-icon">🏅</div>
+        <h3>Stage Readiness</h3>
+        <p>Students prepared for competitions and public performances.</p>
+      </div>
+      <div class="feature-pill">
+        <div class="feature-icon">🌐</div>
+        <h3>Flexible Batches</h3>
+        <p>In-person at Vasai and online options for working learners.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- BOOKS -->
+  <div class="strings-bar" style="transform: scaleY(-1);">
+    <svg viewBox="0 0 1440 48" preserveAspectRatio="none" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <line x1="0" y1="8"  x2="1440" y2="8"  stroke="rgba(201,144,42,0.15)" stroke-width="1"/>
+      <line x1="0" y1="16" x2="1440" y2="16" stroke="rgba(201,144,42,0.25)" stroke-width="1"/>
+      <line x1="0" y1="24" x2="1440" y2="24" stroke="rgba(201,144,42,0.40)" stroke-width="1.5"/>
+      <line x1="0" y1="32" x2="1440" y2="32" stroke="rgba(201,144,42,0.25)" stroke-width="1"/>
+      <line x1="0" y1="40" x2="1440" y2="40" stroke="rgba(201,144,42,0.15)" stroke-width="1"/>
+      <circle cx="24"   cy="24" r="3.5" fill="#c9902a" opacity="0.6"/>
+      <circle cx="720"  cy="24" r="3.5" fill="#c9902a" opacity="0.8"/>
+      <circle cx="1416" cy="24" r="3.5" fill="#c9902a" opacity="0.6"/>
+    </svg>
+  </div>
+
+  <section class="section-wrap" style="background: var(--surface); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);" id="features">
+    <div style="margin-bottom: 40px; text-align: center;">
+      <h2 class="section-title">Examination Books</h2>
+      <p class="section-sub">ABGMV syllabus from beginner to advanced</p>
+    </div>
+    <div class="books-row" id="booksGallery"></div>
+  </section>
+
+  <footer class="site-footer">
+    <strong>Swarsanskar Music Academy</strong><br>
+    <span style="margin-top: 6px; display: block;">Godavari Apartment, Umelman, Vasai – 401202 &nbsp;·&nbsp; <a href="tel:+919821866241" style="color: var(--gold); text-decoration: none;">9821866241</a></span>
+    <span style="margin-top: 8px; display: block;">© 2025 Swarsanskar Music Academy. All rights reserved.</span>
+  </footer>
+
+  <script>
+    function toggleNav() {
+      document.getElementById('siteNav').classList.toggle('open');
+    }
+
+    const books = [
+      { img: 'https://i.postimg.cc/Y0KpzsmT/Orange-And-Brown-Modern-Illustrative-Indian-Novel-Book-Cover.png', title: 'Part 1 – Prarambhik', desc: 'Introductory level — foundational skills and basic theory.' },
+      { img: 'https://i.postimg.cc/7L0tTtDp/Orange-And-Brown-Modern-Illustrative-Indian-Novel-Book-Cover-(1).png', title: 'Part 2 – Praveshika Pratham', desc: 'First-level after Prarambhik — foundational ragas and taals.' },
+      { img: 'https://i.postimg.cc/bNnnP7Tk/Orange-And-Brown-Modern-Illustrative-Indian-Novel-Book-Cover-(2).png', title: 'Part 3 – Praveshika Purna', desc: 'Deeper knowledge of ragas, taals and performance.' },
+      { img: 'https://i.postimg.cc/8CXByqDX/Orange-And-Brown-Modern-Illustrative-Indian-Novel-Book-Cover-(3).png', title: 'Part 4 – Madhyama Pratham', desc: 'Enhanced raga understanding and performance techniques.' },
+      { img: 'https://i.postimg.cc/nzQ73r3b/Orange-And-Brown-Modern-Illustrative-Indian-Novel-Book-Cover-(4).png', title: 'Part 5 – Madhyama Purna', desc: 'Refined raga elaboration and complex taal structures.' },
+      { img: 'https://i.postimg.cc/prH9kZ9w/Orange-And-Brown-Modern-Illustrative-Indian-Novel-Book-Cover-(5).png', title: 'Part 6 – Visharad Pratham', desc: 'Advanced raga presentation and professional-level skills.' },
+      { img: 'https://i.postimg.cc/fyDLYRF7/Orange-And-Brown-Modern-Illustrative-Indian-Novel-Book-Cover-(6).png', title: 'Part 7 – Visharad Purna', desc: 'Mastery level — complex taals and polished performance.' },
+    ];
+
+    const gallery = document.getElementById('booksGallery');
+    books.forEach(b => {
+      const el = document.createElement('div');
+      el.className = 'book-card';
+      el.innerHTML = `<img src="${b.img}" alt="${b.title}"><div class="book-info"><h3>${b.title}</h3><p>${b.desc}</p></div>`;
+      gallery.appendChild(el);
+    });
+  </script>
+</body>
+</html>

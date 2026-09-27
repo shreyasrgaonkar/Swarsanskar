@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contact – Swarsanskar Music Academy</title>
+  <link rel="stylesheet" href="theme.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    .contact-layout {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 40px 24px 80px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 32px;
+    }
+    @media (max-width: 680px) {
+      .contact-layout { grid-template-columns: 1fr; }
+    }
+    .contact-info h2 {
+      font-family: var(--font-display);
+      font-size: 32px;
+      font-weight: 600;
+      color: var(--sand);
+      margin-bottom: 24px;
+    }
+    .info-row { margin-bottom: 24px; }
+    .info-row label {
+      display: block;
+      font-size: 10px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 6px;
+    }
+    .info-row p, .info-row a {
+      font-size: 15px;
+      color: var(--sand);
+      text-decoration: none;
+      display: block;
+      line-height: 1.6;
+    }
+    .info-row a:hover { color: var(--gold-lt); }
+    .map-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 20px;
+      background: rgba(201,144,42,0.1);
+      border: 1px solid var(--border-s);
+      color: var(--gold);
+      padding: 10px 20px;
+      border-radius: var(--radius-s);
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 600;
+      transition: background 0.2s;
+    }
+    .map-btn:hover { background: rgba(201,144,42,0.2); }
+    .contact-form-wrap h2 {
+      font-family: var(--font-display);
+      font-size: 32px;
+      font-weight: 600;
+      color: var(--sand);
+      margin-bottom: 24px;
+    }
+    .contact-form-wrap .btn-gold {
+      width: 100%;
+      justify-content: center;
+      margin-top: 4px;
+    }
+    .divider-line {
+      width: 48px;
+      height: 2px;
+      background: linear-gradient(90deg, var(--gold), transparent);
+      margin-bottom: 20px;
+    }
+    .field { margin-bottom: 14px; }
+    .field label {
+      display: block;
+      font-size: 11px;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+    .field input, .field textarea {
+      width: 100%;
+      background: var(--midnight);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-s);
+      padding: 11px 14px;
+      font-family: var(--font-body);
+      font-size: 14px;
+      color: var(--text);
+      outline: none;
+    }
+    .field input:focus, .field textarea:focus {
+      border-color: var(--gold);
+      box-shadow: 0 0 0 3px rgba(201,144,42,0.12);
+    }
+  </style>
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="logo-group">
+        <img src="logo.jpeg" alt="Logo" class="site-logo">
+        <div class="logo-text">
+          <span class="logo-name">Swarsanskar</span>
+          <span class="logo-sub">Music Academy</span>
+        </div>
+      </a>
+      <button class="nav-hamburger" onclick="document.getElementById('siteNav').classList.toggle('open')" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+      <nav class="site-nav" id="siteNav">
+        <a href="index.html">Home</a>
+        <a href="cat.html">Courses</a>
+        <a href="about.html">About</a>
+        <a href="vision.html">Vision</a>
+        <a href="cont.html" class="active">Contact</a>
+        <a href="help.html">Help</a>
+        <a href="Sign.html" class="nav-cta">Sign In</a>
+      </nav>
+    </div>
+  </header>
+
+  <div style="padding: 80px 24px 40px; text-align: center; background: radial-gradient(ellipse 70% 50% at 50% 0%, rgba(201,144,42,0.06) 0%, transparent 70%);">
+    <div style="display:inline-block; font-size:11px; letter-spacing:3px; text-transform:uppercase; color:var(--gold); border:1px solid var(--border-s); border-radius:50px; padding:5px 16px; margin-bottom:20px;">Reach Us</div>
+    <h1 style="font-family:var(--font-display); font-size: clamp(36px,6vw,60px); font-weight:600; color:var(--sand); margin-bottom:12px;">Contact Us</h1>
+    <p style="color:var(--muted); font-size:15px; max-width:480px; margin:0 auto;">We'd love to hear from you — for admissions, questions, or just to say namaste.</p>
+  </div>
+
+  <div class="contact-layout">
+    <div class="contact-info">
+      <h2>Get in Touch</h2>
+      <div class="divider-line"></div>
+
+      <div class="info-row">
+        <label>Email</label>
+        <a href="mailto:swarsankarmusic@gmail.com">swarsankarmusic@gmail.com</a>
+      </div>
+
+      <div class="info-row">
+        <label>Mobile — Ranjit Gaonkar</label>
+        <a href="tel:+919821866241">+91 98218 66241</a>
+      </div>
+
+      <div class="info-row">
+        <label>Mobile — Shreyas Gaonkar</label>
+        <a href="tel:+919172844879">+91 91728 44879</a>
+      </div>
+
+      <div class="info-row">
+        <label>Address</label>
+        <p>Swarsanskar, R/104,<br>Godavari Apartment,<br>Umelman, Vasai – 401202</p>
+      </div>
+
+      <a href="https://maps.app.goo.gl/7c9kErhYZueCeEvn8" target="_blank" class="map-btn">
+        📍 View on Google Maps
+      </a>
+    </div>
+
+    <div class="contact-form-wrap">
+      <h2>Send a Message</h2>
+      <div class="divider-line"></div>
+
+      <form id="contactForm">
+        <div class="field">
+          <label>Your Name</label>
+          <input type="text" id="cName" placeholder="Ranjit Gaonkar" required>
+        </div>
+        <div class="field">
+          <label>Phone / Email</label>
+          <input type="text" id="cContact" placeholder="9999999999 or name@email.com" required>
+        </div>
+        <div class="field">
+          <label>Message</label>
+          <textarea id="cMsg" rows="4" placeholder="I'd like to know about admissions…" required style="resize: vertical;"></textarea>
+        </div>
+        <button type="submit" class="btn btn-gold" id="contactBtn">Send Message →</button>
+        <p id="formNote" style="margin-top: 12px; font-size: 12px; color: var(--muted); text-align: center;"></p>
+      </form>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <footer class="site-footer">
+    <strong>Swarsanskar Music Academy</strong><br>
+    <span style="margin-top: 6px; display: block;">© 2025 All rights reserved.</span>
+  </footer>
+
+  <script>
+    const SUPABASE_URL = "https://znpuvbgasybjziyzccnj.supabase.co";
+    const SUPABASE_KEY = "sb_publishable__3ccgpu-g19-N15oa1azoQ_c_9jFrdH";
+    var sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    document.getElementById("contactForm").addEventListener("submit", async function (e) {
+      e.preventDefault();
+      var name = document.getElementById("cName").value.trim();
+      var contact = document.getElementById("cContact").value.trim();
+      var message = document.getElementById("cMsg").value.trim();
+      if (!name || !contact || !message) return;
+
+      var btn = document.getElementById("contactBtn");
+      var note = document.getElementById("formNote");
+      btn.disabled = true;
+      btn.textContent = "Sending…";
+
+      try {
+        var res = await sb.from("contact_messages").insert([{
+          name: name,
+          contact: contact,
+          message: message,
+          status: "new"
+        }]);
+        if (res.error) throw res.error;
+
+        note.textContent = "Thank you! We'll get back to you soon.";
+        note.style.color = "#c9902a";
+        this.reset();
+      } catch (err) {
+        console.error(err);
+        note.textContent = "Could not send. Please try again or call us.";
+        note.style.color = "#f87171";
+      }
+
+      btn.disabled = false;
+      btn.textContent = "Send Message →";
+    });
+  </script>
+</body>
+</html>
